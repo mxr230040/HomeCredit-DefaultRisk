@@ -43,3 +43,30 @@ This setup mirrors enterprise credit risk environments by ensuring:
 - `credit_card_balance` and `POS_CASH_balance` contribute revolving credit and short-term loan behavior.
 
 This multi-source structure mirrors real-world consumer risk systems, where the borrower’s creditworthiness is assessed using a combination of demographic attributes, external bureau information, and repayment history across various loan products.
+
+                            ┌─────────────────────────────────────────────┐
+                            │            application_train                │
+                            │        One row per customer application     │
+                            │                Primary Key: SK_ID_CURR      │
+                            └───────────────────────────┬─────────────────┘
+                                                        │
+                          ┌─────────────────────────────┼─────────────────────────────┐
+                          │                             │                             │
+                          ▼                             ▼                             ▼
+
+        ┌────────────────────────────────┐   ┌──────────────────────────────┐   ┌──────────────────────────────┐
+        │             bureau             │   │     previous_application     │   │     credit_card_balance      │
+        │  All external loans for a      │   │  All past applications the   │   │  Monthly credit card status  │
+        │  customer across institutions  │   │  customer submitted to lender│   │  and balances                │
+        │  PK: SK_ID_BUREAU              │   │  PK: SK_ID_PREV              │   │  Linked by SK_ID_CURR        │
+        │  FK → SK_ID_CURR               │   │  FK → SK_ID_CURR             │   └───────────────┬────────────┘
+        └──────────────────┬─────────────┘   └──────────────────┬──────────┘                   │
+                           │                                  │                                ▼
+                           │                                  │                 ┌──────────────────────────────┐
+                           ▼                                  ▼                 │        POS_CASH_balance      │
+        ┌────────────────────────────────┐   ┌──────────────────────────────┐   │  Monthly POS loan behavior  │
+        │        bureau_balance          │   │     installments_payments    │   │  FK → SK_ID_CURR            │
+        │  Monthly history for each      │   │  Repayments for each         │   └──────────────────────────────┘
+        │  bureau loan (time series)     │   │  previous loan               │
+        │  FK → SK_ID_BUREAU             │   │  FK → SK_ID_PREV             │
+        └────────────────────────────────┘   └──────────────────────────────┘
