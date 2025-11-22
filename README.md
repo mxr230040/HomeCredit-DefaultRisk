@@ -70,3 +70,71 @@ This multi-source structure mirrors real-world consumer risk systems, where the 
         │  bureau loan (time series)     │   │  previous loan               │
         │  FK → SK_ID_BUREAU             │   │  FK → SK_ID_PREV             │
         └────────────────────────────────┘   └──────────────────────────────┘
+
+---
+
+## Feature Engineering & Master Modeling Table (SageMaker + Python)
+
+Customer-level credit risk features were engineered across all seven datasets to prepare inputs for Probability of Default (PD) modeling.  
+Feature groups included:
+
+- **Application features:** income ratios, loan-to-goods ratios, age/employment indicators  
+- **Bureau features:** external loan counts, overdue history, credit sums, prolongations  
+- **Bureau balance features:** monthly delinquency patterns and status transitions  
+- **Previous application features:** past loan outcomes, approval/refusal behavior, requested amounts  
+- **Installment payment features:** late payment frequency, installment-to-payment ratios  
+- **Credit card features:** utilization trends, delinquency flags, limit behavior  
+- **POS cash loan features:** monthly performance and delinquency indicators  
+
+All features were aggregated to **SK_ID_CURR** and merged into a unified **master modeling table**, stored in another S3 Bucket.
+
+---
+
+## 🟦 PD Model Development (SageMaker)
+
+Baseline Probability of Default (PD) models were trained using the engineered dataset:
+
+- **Logistic Regression** for interpretability and baseline risk separation  
+- **XGBoost** for stronger nonlinear performance and interaction handling  
+
+Models were evaluated using standard credit risk metrics:
+
+- **AUC (Area Under Curve)**
+- **KS Statistic**
+- **Score decile rank-ordering**
+- **Lift and capture rate curves**
+- **Confusion matrix and event rate checks**
+
+Model outputs included customer-level PD scores, feature importance rankings, and decile performance tables.
+
+---
+
+## 🟨 Risk Insights & Portfolio Analysis
+
+Portfolio-level insights were generated using the model outputs and engineered features.  
+Examples include:
+
+- **Risk segmentation** by income band, employment stability, external credit score, and repayment quality  
+- **Rank-ordering validation**, confirming high-risk deciles capture most defaults  
+- **Behavioral analysis**, highlighting delinquency frequency and utilization as key drivers  
+- **Feature importance review**, identifying variables with the highest predictive contribution  
+- **Customer-level risk flags**, supporting decisioning and potential scorecard use  
+
+These insights reflect typical analyses performed in credit risk organizations to validate model behavior and portfolio implications.
+
+---
+
+## 🟧 Dashboarding & Visualization (Power BI)
+
+Interactive dashboards were created in Power BI to present both modeling outcomes and portfolio insights.  
+Dashboards included:
+
+- **Portfolio Overview:** event rate, customer count, risk distribution  
+- **Score Decile Analysis:** PD distribution, rank-ordering, lift  
+- **Applicant Profile Segmentation:** income, employment, family size, loan purpose  
+- **Behavioral Risk Views:** repayment patterns, credit utilization, delinquency cycles  
+- **Feature Importance Visuals:** key drivers of model predictions  
+
+These dashboards allow stakeholders to understand customer risk profiles, monitor portfolio behavior, and evaluate model performance.
+
+
